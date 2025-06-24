@@ -1,0 +1,79 @@
+// ==========================================================
+// ==      SKEMA PRISMA YANG DIREKOMENDASIKAN UNTUK        ==
+// ==                  APLIKASI WEB KUIS                   ==
+// ==========================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String   // Penting: Selalu hash password sebelum disimpan!
+  createdAt DateTime @default(now())
+
+  // Seorang user bisa memiliki banyak riwayat pengerjaan kuis
+  quizAttempts QuizAttempt[]
+}
+
+/// Model untuk merepresentasikan sebuah Kuis atau Kategori.
+/// Contoh: "Kuis Pengetahuan Umum", "Tes Matematika Dasar"
+model Quiz {
+  id          Int      @id @default(autoincrement())
+  title       String   // Judul kuis, cth: "Sejarah Indonesia"
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Sebuah kuis memiliki banyak pertanyaan
+  questions    Question[]
+  // Sebuah kuis bisa dikerjakan berkali-kali oleh banyak user
+  quizAttempts QuizAttempt[]
+}
+
+model Question {
+  id     Int    @id @default(autoincrement())
+  text   String // Isi teks pertanyaan
+  quizId Int    // Foreign key ke model Quiz
+
+  // Sebuah pertanyaan milik satu kuis
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  
+  // Sebuah pertanyaan memiliki beberapa pilihan jawaban
+  choices Choice[]
+}
+
+model Choice {
+  id         Int     @id @default(autoincrement())
+  text       String  // Isi teks pilihan jawaban, cth: "Jakarta"
+  questionId Int     // Foreign key ke model Question
+
+  /// Kolom ini menggantikan tabel `answer_key` yang terpisah.
+  /// Jauh lebih simpel dan efisien.
+  isCorrect  Boolean @default(false)
+
+  // Sebuah pilihan jawaban milik satu pertanyaan
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+/// Model ini untuk mencatat setiap kali seorang user menyelesaikan kuis.
+/// Ini adalah solusi untuk masalah kolom `skor` pada desain awal.
+model QuizAttempt {
+  id        Int      @id @default(autoincrement())
+  score     Int      // Skor yang didapat user, cth: 85
+  userId    Int      // Siapa yang mengerjakan
+  quizId    Int      // Kuis apa yang dikerjakan
+  createdAt DateTime @default(now())
+
+  // Relasi
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, quizId, createdAt], name: "user_quiz_attempt")
+}
