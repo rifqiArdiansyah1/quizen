@@ -17,7 +17,12 @@ export default function HomePage() {
 
 
   return (
-    <>
-    </>
+    
+    // <div className='flex justify-center min-h-screen bg-gradient-to-br from-purple-950 via-purple-900 to-blue-400 items-center'>
+    <div className='flex justify-center min-h-screen bg-black items-center'>
+      <h1 className='text-fuchsia-50 text-2xl'>Halaman Utama</h1>
+
+    </div>
+    
   );
 }
