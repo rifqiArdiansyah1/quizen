@@ -1,8 +1,3 @@
-// ==========================================================
-// ==      SKEMA PRISMA YANG DIREKOMENDASIKAN UNTUK        ==
-// ==                  APLIKASI WEB KUIS                   ==
-// ==========================================================
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,13 +8,17 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  password  String   // Penting: Selalu hash password sebelum disimpan!
-  createdAt DateTime @default(now())
+  id            Int       @id @default(autoincrement())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   @db.VarChar(255) // Bisa null karena login OAuth tidak butuh password
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now())
 
-  // Seorang user bisa memiliki banyak riwayat pengerjaan kuis
+  accounts     Account[]
+  sessions     Session[]
   quizAttempts QuizAttempt[]
 }
 
@@ -27,9 +26,10 @@ model User {
 /// Contoh: "Kuis Pengetahuan Umum", "Tes Matematika Dasar"
 model Quiz {
   id          Int      @id @default(autoincrement())
-  title       String   // Judul kuis, cth: "Sejarah Indonesia"
-  description String?
+  title       String   @db.VarChar(255) // Tambahkan panjang maksimum
+  description String?  @db.VarChar(500) // Tambahkan panjang maksimum
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
 
   // Sebuah kuis memiliki banyak pertanyaan
   questions    Question[]
@@ -40,23 +40,23 @@ model Quiz {
 model Question {
   id     Int    @id @default(autoincrement())
   text   String // Isi teks pertanyaan
-  quizId Int    // Foreign key ke model Quiz
+  quizId Int // Foreign key ke model Quiz
 
   // Sebuah pertanyaan milik satu kuis
   quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  
+
   // Sebuah pertanyaan memiliki beberapa pilihan jawaban
   choices Choice[]
 }
 
 model Choice {
-  id         Int     @id @default(autoincrement())
-  text       String  // Isi teks pilihan jawaban, cth: "Jakarta"
-  questionId Int     // Foreign key ke model Question
+  id         Int    @id @default(autoincrement())
+  text       String // Isi teks pilihan jawaban, cth: "Jakarta"
+  questionId Int // Foreign key ke model Question
 
   /// Kolom ini menggantikan tabel `answer_key` yang terpisah.
   /// Jauh lebih simpel dan efisien.
-  isCorrect  Boolean @default(false)
+  isCorrect Boolean @default(false)
 
   // Sebuah pilihan jawaban milik satu pertanyaan
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -66,9 +66,9 @@ model Choice {
 /// Ini adalah solusi untuk masalah kolom `skor` pada desain awal.
 model QuizAttempt {
   id        Int      @id @default(autoincrement())
-  score     Int      // Skor yang didapat user, cth: 85
-  userId    Int      // Siapa yang mengerjakan
-  quizId    Int      // Kuis apa yang dikerjakan
+  score     Int // Skor yang didapat user, cth: 85
+  userId    Int // Siapa yang mengerjakan
+  quizId    Int // Kuis apa yang dikerjakan
   createdAt DateTime @default(now())
 
   // Relasi
@@ -76,4 +76,39 @@ model QuizAttempt {
   quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   @@unique([userId, quizId, createdAt], name: "user_quiz_attempt")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            Int
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

@@ -1,20 +1,5 @@
 // app/page.js
-'use client';
-
-import { useState } from 'react';
-
 export default function HomePage() {
-  const [message, setMessage] = useState('');
-  const [name, setName] = useState('');
-  const [response, setResponse] = useState(null);
-
-  // Fungsi untuk memanggil API GET
-  const fetchData = async () => {
-    const res = await fetch('/api/quiz');
-    const result = await res.json();
-    setMessage(result.data.question);
-  };
-
 
   return (
     <main className="min-h-screen bg-[#1e1b17] text-white flex flex-col items-center justify-center px-4">
