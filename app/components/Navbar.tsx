@@ -120,14 +120,14 @@ export default function Navbar() {
 
           {authState.isLoggedIn ? (
             <div className="flex items-center gap-4">
-              <Link
+              {/* <Link
                 href="/dashboard"
                 className={`flex items-center gap-1 hover:text-amber-300 transition-colors ${pathname === '/dashboard' ? 'text-amber-300 font-medium' : ''
                   }`}
               >
                 <Home size={18} />
                 <span>Dashboard</span>
-              </Link>
+              </Link> */}
 
               <div className="relative group">
                 <button className="flex items-center gap-2 hover:text-amber-300 transition-colors">
