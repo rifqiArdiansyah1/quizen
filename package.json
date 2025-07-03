@@ -13,13 +13,12 @@
     "@dicebear/collection": "^9.2.3",
     "@dicebear/core": "^9.2.3",
     "@hookform/resolvers": "^5.1.1",
-    "@prisma/client": "^6.10.1",
+    "@prisma/client": "^6.11.0",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.523.0",
     "next": "15.3.3",
     "next-auth": "^4.24.11",
-    "prisma": "^6.10.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.59.0",
@@ -32,6 +31,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "prisma": "^6.11.0",
     "tailwindcss": "^4.1.11",
     "typescript": "^5"
   }

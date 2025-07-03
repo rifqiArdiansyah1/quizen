@@ -13,7 +13,7 @@ declare module "next-auth" {
 
 const prisma = new PrismaClient();
 
-export const { handlers, auth, signOut } = NextAuth({
+export const { auth, signOut } = NextAuth({
     adapter: PrismaAdapter(prisma),
     providers: [
         GitHub({
