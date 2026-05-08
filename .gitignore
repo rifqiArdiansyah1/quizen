@@ -19,6 +19,8 @@
 
 # production
 /build
+prompt.txt
+issue.md
 
 # misc
 .DS_Store
